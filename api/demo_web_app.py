@@ -9,17 +9,19 @@ from flask import Flask, request, Response
 
 from .gpt import set_openai_key, Example
 from .ui_config import UIConfig
+from dotenv import load_dotenv
 
-CONFIG_VAR = "OPENAI_CONFIG"
-KEY_NAME = "OPENAI_KEY"
+load_dotenv()
+import os
+
+KEY_NAME = os.getenv("OPENAI_API_KEY")
 
 
 def demo_web_app(gpt, config=UIConfig()):
     """Creates Flask app to serve the React app."""
     app = Flask(__name__)
 
-    app.config.from_envvar(CONFIG_VAR)
-    set_openai_key(app.config[KEY_NAME])
+    set_openai_key(KEY_NAME)
 
     @app.route("/params", methods=["GET"])
     def get_params():
@@ -103,7 +105,7 @@ def demo_web_app(gpt, config=UIConfig()):
         offset = 0
         if not gpt.append_output_prefix_to_query:
             offset = len(gpt.output_prefix)
-        return {'text': response['choices'][0]['text'][offset:]}
+        return {"text": response["choices"][0]["text"][offset:]}
 
     subprocess.Popen(["yarn", "start"])
     app.run()
